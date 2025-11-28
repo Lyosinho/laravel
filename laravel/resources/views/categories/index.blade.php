@@ -1,40 +1,59 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto max-w-2xl py-6">
-	<h1 class="text-2xl font-bold mb-4">Categorias</h1>
+<div class="container mx-auto max-w-4xl py-6">
+	<div class="flex justify-between items-center mb-4">
+		<h1 class="text-2xl font-bold">Categorias</h1>
+		<a href="{{ route('categories.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded">Nova Categoria</a>
+	</div>
 
 	@if(session('success'))
 		<div class="bg-green-100 text-green-800 p-2 mb-4">{{ session('success') }}</div>
 	@endif
 
-	@if ($errors->any())
-		<div class="bg-red-100 text-red-800 p-2 mb-4">
-			<ul class="list-disc ml-6">
-				@foreach ($errors->all() as $error)
-					<li>{{ $error }}</li>
-				@endforeach
-			</ul>
-		</div>
+	@if(session('error'))
+		<div class="bg-red-100 text-red-800 p-2 mb-4">{{ session('error') }}</div>
 	@endif
 
-	<form method="POST" action="{{ route('categories.store') }}" class="space-y-3 mb-8">
-		@csrf
-		<div>
-			<label class="block mb-1">Nome</label>
-			<input type="text" name="name" value="{{ old('name') }}" class="w-full border p-2" required>
+	@if($categories->count() > 0)
+		<div class="overflow-x-auto">
+			<table class="w-full border-collapse border border-gray-300">
+				<thead>
+					<tr class="bg-gray-100">
+						<th class="border border-gray-300 p-2 text-left">Nome</th>
+						<th class="border border-gray-300 p-2 text-left">Produtos</th>
+						<th class="border border-gray-300 p-2 text-left">Criado em</th>
+						<th class="border border-gray-300 p-2 text-left">Ações</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach($categories as $category)
+						<tr>
+							<td class="border border-gray-300 p-2">{{ $category->name }}</td>
+							<td class="border border-gray-300 p-2">{{ $category->products_count }} produto(s)</td>
+							<td class="border border-gray-300 p-2">{{ $category->created_at->format('d/m/Y') }}</td>
+							<td class="border border-gray-300 p-2">
+								<div class="flex gap-2">
+									<a href="{{ route('categories.show', $category) }}" class="text-blue-600 hover:underline">Ver</a>
+									<a href="{{ route('categories.edit', $category) }}" class="text-green-600 hover:underline">Editar</a>
+									<form method="POST" action="{{ route('categories.destroy', $category) }}" style="display: inline;" onsubmit="return confirm('Tem certeza?')">
+										@csrf
+										@method('DELETE')
+										<button type="submit" class="text-red-600 hover:underline">Excluir</button>
+									</form>
+								</div>
+							</td>
+						</tr>
+					@endforeach
+				</tbody>
+			</table>
 		</div>
-		<button type="submit" class="bg-blue-600 text-white px-4 py-2">Salvar</button>
-	</form>
-
-	<h2 class="text-xl font-semibold mb-2">Lista de Categorias</h2>
-	<ul class="space-y-2">
-		@forelse($categories as $category)
-			<li class="border p-2">{{ $category->name }}</li>
-		@empty
-			<li class="text-gray-600">Nenhuma categoria cadastrada.</li>
-		@endforelse
-	</ul>
+	@else
+		<div class="text-center py-8">
+			<p class="text-gray-600 mb-4">Nenhuma categoria cadastrada.</p>
+			<a href="{{ route('categories.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded">Criar Primeira Categoria</a>
+		</div>
+	@endif
 </div>
 @endsection
 

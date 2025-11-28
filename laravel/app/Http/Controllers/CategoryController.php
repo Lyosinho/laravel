@@ -9,8 +9,13 @@ class CategoryController extends Controller
 {
 	public function index()
 	{
-		$categories = Category::latest()->get();
+		$categories = Category::withCount('products')->latest()->get();
 		return view('categories.index', compact('categories'));
+	}
+
+	public function create()
+	{
+		return view('categories.create');
 	}
 
 	public function store(Request $request)
@@ -22,5 +27,38 @@ class CategoryController extends Controller
 		Category::create($validated);
 
 		return redirect()->route('categories.index')->with('success', 'Categoria criada com sucesso!');
+	}
+
+	public function show(Category $category)
+	{
+		$category->load('products');
+		return view('categories.show', compact('category'));
+	}
+
+	public function edit(Category $category)
+	{
+		return view('categories.edit', compact('category'));
+	}
+
+	public function update(Request $request, Category $category)
+	{
+		$validated = $request->validate([
+			'name' => ['required', 'string', 'max:255', 'unique:categories,name,' . $category->id],
+		]);
+
+		$category->update($validated);
+
+		return redirect()->route('categories.index')->with('success', 'Categoria atualizada com sucesso!');
+	}
+
+	public function destroy(Category $category)
+	{
+		if ($category->products()->count() > 0) {
+			return redirect()->route('categories.index')->with('error', 'Não é possível excluir uma categoria que possui produtos.');
+		}
+
+		$category->delete();
+
+		return redirect()->route('categories.index')->with('success', 'Categoria excluída com sucesso!');
 	}
 }

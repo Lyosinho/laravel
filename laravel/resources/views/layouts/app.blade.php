@@ -17,9 +17,20 @@
 </head>
 <body>
 	<nav>
-		<div class="container mx-auto max-w-3xl flex gap-4">
-			<a href="/produtos">Produtos</a>
-			<a href="/categorias">Categorias</a>
+		<div class="container mx-auto max-w-3xl flex justify-between items-center">
+			<div class="flex gap-4">
+				<a href="{{ route('products.index') }}">Produtos</a>
+				<a href="{{ route('categories.index') }}">Categorias</a>
+			</div>
+			@if(session('authenticated'))
+				<div class="flex items-center gap-4">
+					<span>Olá, {{ session('username') }}!</span>
+					<form method="POST" action="{{ route('logout') }}" style="display: inline;">
+						@csrf
+						<button type="submit" style="background: none; border: none; color: inherit; text-decoration: underline; cursor: pointer;">Sair</button>
+					</form>
+				</div>
+			@endif
 		</div>
 	</nav>
 	<main>
